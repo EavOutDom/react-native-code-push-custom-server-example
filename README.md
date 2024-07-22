@@ -440,7 +440,6 @@ Android:
 
 ```bash
 code-push release-react Z-Android android --t 1.0.0 --dev false --d Production --des "Production" --m true
-
 ```
 
 iOS:
