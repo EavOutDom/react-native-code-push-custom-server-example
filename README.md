@@ -1,79 +1,478 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# React Native Code Push Using Custom Server Example
 
-# Getting Started
+Since [Visual Studio App Center](https://appcenter.ms/apps) is about retire and we don't want to use EAS Update, So now we can create our own custom server using [@shm-open/code-push-server](https://github.com/shm-open/code-push-server) and [@shm-open/code-push-cli](https://github.com/shm-open/code-push-cli)
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Step 1 - Installing @shm-open/code-push-server
 
-## Step 1: Start the Metro Server
+[Check complete installation here](https://github.com/shm-open/code-push-server?tab=readme-ov-file#how-to-install-code-push-server). Once you already installed and setup correctly, you can try access to http://localhost:3000.<br />
+It should response sth like this:
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+![step-1.1](./src/assets/step-1.1.png)
 
-To start Metro, run the following command from the _root_ of your React Native project:
+> http://localhost:3000 is your code push server url. I recommend using IP Address due to testing real device </br>
+> Default username: `admin` and password: `123456`
 
-```bash
-# using npm
-npm start
+## Step 2 - Installing @shm-open/code-push-cli
 
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
+### 1. Run this command:
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+npm install -g @shm-open/code-push-cli
 ```
 
-### For iOS
+### 2. Login Code-Push Account
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+code-push login http://localhost:3000
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+It will ask for token and open web browser. default account is username: `admin` and password: `123456`. </br>
+After login success click obtain token then copy/past in prompt.
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+Run this command for verify login:
 
-## Step 3: Modifying your App
+```bash
+code-push whoami
+```
 
-Now that you have successfully run the app, let's modify it.
+### 3. Managing App
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+You need to add your app to Code Push Server first before deploy any update
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+command:
 
-## Congratulations! :tada:
+```bash
+code-push app add <appName> <os> <platform>
+```
 
-You've successfully run and modified your React Native App. :partying_face:
+You can add them separately.</br>
+For example:
 
-### Now what?
+Android:
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+```bash
+code-push app add Z-Android android react-native
+```
 
-# Troubleshooting
+iOS:
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+```bash
+code-push app add Z-iOS ios react-native
+```
 
-# Learn More
+### 4. Environment
 
-To learn more about React Native, take a look at the following resources:
+Run this command display deployment keys:
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Android:
+
+```bash
+code-push deployment ls Z-Android -k
+```
+
+iOS:
+
+```bash
+code-push deployment ls Z-iOS -k
+```
+
+![step-1.1](./src/assets/step-2.1.png)
+
+### 5. Configuring Multi Environments on Android and iOS
+
+Now we got keys!
+
+Android:
+
+More info [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/multi-deployment-testing-android.md)
+
+#### 1. Open the `android/app/build.gradle` file
+
+add deployment keys
+
+```
+android {
+    ...
+    buildTypes {
+        debug {
+            ...
+            // Note: CodePush updates should not be tested in Debug mode as they are overriden by the RN packager. However, because CodePush checks for updates in all modes, we must supply a key.
+            resValue "string", "CodePushDeploymentKey", '""'
+            ...
+        }
+
+        releaseStaging {
+            ...
+            resValue "string", "CodePushDeploymentKey", '"daTRuP9yJhOaOnQfWvmQN9ey90AK4ksvOXqog"' //staging key
+
+            // Note: It is a good idea to provide matchingFallbacks for the new buildType you create to prevent build issues
+            // Add the following line if not already there
+            matchingFallbacks = ['release']
+            ...
+        }
+
+        release {
+            ...
+
+            resValue "string", "CodePushDeploymentKey", '"o0udof2qeg1ki4kLvhNCuRU7N83z4ksvOXqog"' //production key
+            signingConfig signingConfigs.release
+            ...
+        }
+    }
+    ...
+}
+```
+
+> Retrieve these keys by running `code-push deployment ls -a Z-Android -k` from your terminal.
+
+#### 2. Open the `strings.xml` file
+
+Add Code Push Server Url.
+
+```
+<resources>
+    <string name="app_name">Z</string>
+    <string moduleConfig="true" name="CodePushServerUrl">http://localhost:3000/</string>
+</resources>
+```
+
+iOS:
+
+More info [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/multi-deployment-testing-ios.md)
+
+#### 1. Launch Xcode
+
+Locate your project and ensure it’s selected, not one of your targets.
+
+#### 2. Create a duplicate of the `Release` configuration
+
+Switch to the Info tab then Click the `+` button in the Configurations section and Choose `Duplicate "Release" Configuration` from the dropdown menu.
+
+![step-2.ios.1](./src/assets/step-2.ios.1.png)
+
+Name the new configuration `Staging` or any preferred name.
+
+#### 3. Add `User-Defined` Setting for `Multi_Deployment_Config`
+
+Select the `Build Settings` tab then click button `+` and select `Add User-Defined Setting`
+
+![step-2.ios.2](./src/assets/step-2.ios.2.png)
+
+Name this new setting something like `Multi_Deployment_Config`. Go to the setting and add value `$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)` for Release. After that add value `$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)` for Staging
+
+![step-2.ios.3](./src/assets/step-2.ios.3.png)
+
+#### 4. Add another `User-Defined` Setting for `CODEPUSH_KEY`
+
+![step-2.ios.4](./src/assets/step-2.ios.4.png)
+
+> Retrieve these keys by running `code-push deployment ls -a Z-iOS -k` from your terminal.
+
+### 5. Update the `Info.plist` file
+
+Add value `CodePushDeploymentKey` entry to `$(CODEPUSH_KEY)` and value `CodePushServerUrl` entry to `http://localhost:3000`
+
+![step-2.ios.5](./src/assets/step-2.ios.5.png)
+
+## Step 3 - Installing react-native-code-push
+
+Before install, please check [support react-native platform here](https://github.com/microsoft/react-native-code-push?tab=readme-ov-file#supported-react-native-platforms)
+
+```bash
+npm install --save react-native-code-push
+```
+
+### configuring on ios
+
+Complete setup guide is provided [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/setup-ios.md)
+
+#### 1. Run this command to install CocoaPods dependencies
+
+```bash
+cd ios && pod install && cd ..
+```
+
+#### 2. Open the `AppDelegate.mm` or `AppDelegate.m` file and import this statement
+
+```
+#import <CodePush/CodePush.h>
+```
+
+#### 3. Find the following line of code, which sets the source URL for bridge for production releases:
+
+```
+return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+```
+
+#### 4. Replace it with this line:
+
+```
+return [CodePush bundleURL];
+```
+
+Your `sourceURLForBridge` method should look like this:
+
+```
+- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
+{
+  #if DEBUG
+    return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+  #else
+    return [CodePush bundleURL];
+  #endif
+}
+```
+
+### configuring on Android
+
+Complete setup guide is provided [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/setup-android.md)
+
+#### 1. Open the `android/settings.gradle` file
+
+Add these lines at the end of file
+
+```
+...
+include ':app', ':react-native-code-push'
+project(':react-native-code-push').projectDir = new File(rootProject.projectDir, '../node_modules react-native-code-push/android/app')
+...
+```
+
+#### 2. Open the `android/app/build.gradle` file
+
+Add these lines at the end of file
+
+```
+...
+apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
+```
+
+#### 3. Open `MainApplication` file
+
+For React Native 0.73 and above: update the `MainApplication.kt`
+
+```
+...
+// 1. Import the plugin class.
+import com.microsoft.codepush.react.CodePush
+
+class MainApplication : Application(), ReactApplication {
+
+override val reactNativeHost: ReactNativeHost =
+    object : DefaultReactNativeHost(this) {
+        ...
+
+        // 2. Override the getJSBundleFile method in order to let
+        // the CodePush runtime determine where to get the JS
+        // bundle location from on each app start
+        override fun getJSBundleFile(): String {
+            return CodePush.getJSBundleFile()
+        }
+    };
+}
+```
+
+For React Native 0.72 and below: update the `MainApplication.java`
+
+```
+...
+// 1. Import the plugin class.
+import com.microsoft.codepush.react.CodePush;
+
+public class MainApplication extends Application implements ReactApplication {
+
+    private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+        ...
+
+        // 2. Override the getJSBundleFile method in order to let
+        // the CodePush runtime determine where to get the JS
+        // bundle location from on each app start
+        @Override
+        protected String getJSBundleFile() {
+            return CodePush.getJSBundleFile();
+        }
+    };
+}
+```
+
+## Step 4 - Configuring on App.tsx
+
+Check more info [here](https://github.com/microsoft/react-native-code-push?tab=readme-ov-file#plugin-usage)
+
+```
+import React from 'react';
+import {
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import CodePush from 'react-native-code-push';
+
+type DeploymentKeys = {
+  ios: {[key: string]: string};
+  android: {[key: string]: string};
+};
+
+const CODEPUSH_DEPLOYMENT_KEYS: DeploymentKeys = {
+  android: {
+    production: 'M20n1YNG0Fdetk79aOFCgnSjF1vE4ksvOXqog',
+    staging: 'dEmN7BYofOsZJY8EmsZYNfTzOx7v4ksvOXqog',
+  },
+  ios: {
+    production: 'lOVrQI4itIp1z0QMGMJVDvPIvRVq4ksvOXqog',
+    staging: 'krxkHqnXRfKg9XO2K81fnVyHDOpQ4ksvOXqog',
+  },
+};
+
+let codePushOptions = {checkFrequency: CodePush.CheckFrequency.ON_APP_START};
+
+function App(): React.JSX.Element {
+  const [status, setStatus] = React.useState('');
+  const [process, setProcess] = React.useState('');
+
+  const handleChangeEnvironment = (env: string) => {
+    const {ios, android} = CODEPUSH_DEPLOYMENT_KEYS;
+    const selectedKeys = Platform.OS === 'ios' ? ios : android;
+    const deploymentKey = selectedKeys[env] || selectedKeys.production;
+    CodePush.sync(
+      {
+        deploymentKey,
+        updateDialog: true,
+        installMode: CodePush.InstallMode.IMMEDIATE,
+        mandatoryInstallMode: CodePush.InstallMode.IMMEDIATE,
+      },
+      status => {
+        switch (status) {
+          case CodePush.SyncStatus.DOWNLOADING_PACKAGE:
+            setStatus('Downloading package.');
+            break;
+          case CodePush.SyncStatus.INSTALLING_UPDATE:
+            setStatus('Installing update.');
+            break;
+          case CodePush.SyncStatus.UPDATE_INSTALLED:
+            setStatus('Update installed. Restart not required.');
+            break;
+          case CodePush.SyncStatus.UP_TO_DATE:
+            setStatus('The app is up to date.');
+            break;
+          case CodePush.SyncStatus.UPDATE_IGNORED:
+            setStatus('Update cancelled by user.');
+            break;
+          case CodePush.SyncStatus.UNKNOWN_ERROR:
+            setStatus('An unknown error occurred.');
+            break;
+        }
+      },
+      progress => {
+        setProcess(
+          `Received ${progress.receivedBytes} of ${progress.totalBytes} bytes.`,
+        );
+      },
+    ).catch(e => setStatus(JSON.stringify(e)));
+  };
+
+  return (
+    <SafeAreaView style={{flex: 1, padding: 20}}>
+      <TouchableOpacity
+        style={{padding: 10, backgroundColor: 'red'}}
+        onPress={() => handleChangeEnvironment('production')}>
+        <Text>Check for updates for production</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{padding: 10, backgroundColor: 'blue', marginVertical: 20}}
+        onPress={() => handleChangeEnvironment('staging')}>
+        <Text>Check for updates for staging</Text>
+      </TouchableOpacity>
+      <Text>Production 12</Text>
+      <Text>{status}</Text>
+      <Text>{process}</Text>
+    </SafeAreaView>
+  );
+}
+
+export default CodePush(codePushOptions)(App);
+```
+
+## Step 5 - Testing and Release
+
+> assume this already complete setup for build app
+
+For build on android device run:
+
+```bash
+cd android && ./gradlew clean
+
+./gradlew assembleRease
+
+
+adb install app/build/outputs/apk/release/app-release.apk
+
+cd ..
+```
+
+For build on ios device run:
+
+```bash
+npx react-native run-ios --mode Release
+```
+
+### bundling android and ios
+
+In order to create the code-push update of the app, we bundle our application using the following command: [p.s: first, create a folder named `code-push` to store bundle files and assets]
+
+Android
+
+```bash
+npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output ./code-push/index.android.bundle --assets-dest ./code-push
+```
+
+iOS:
+
+```bash
+npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./code-push/main.jsbundle --assets-dest ./code-push
+```
+
+### Releasing Bundle to the Deployment Server
+
+Android:
+
+```bash
+code-push release-react Z-Android android --t 1.0.0 --dev false --d Production --des "Production" --m true
+
+```
+
+iOS:
+
+```bash
+code-push release-react Z-iOS ios --t 13.4 --dev false --d Production --des "Production" --m true
+```
+
+> --t = target
+> --d = description
+> --m = mandatory
+
+### patch to all users
+
+```bash
+code-push patch Z-Android Production -r 100
+```
+
+### view log deployment
+
+```bash
+code-push deployment list Z-Android -k
+```
+
+### Resource
+
+https://github.com/shm-open/code-push-server
+
+https://github.com/shm-open/code-push-cli
+
+https://aexomir1.medium.com/configuring-react-native-code-push-using-custom-server-e40e87697a26
+
+https://aexomir1.medium.com/handling-multi-deployment-environments-and-ab-testing-on-react-native-1d4e8e4b1e8e
+
+https://github.com/Microsoft/react-native-code-push

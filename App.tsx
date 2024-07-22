@@ -6,92 +6,99 @@
  */
 
 import React from 'react';
-import type {PropsWithChildren} from 'react';
 import {
+  Platform,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
-  View,
+  TouchableOpacity,
 } from 'react-native';
+import CodePush from 'react-native-code-push';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+type DeploymentKeys = {
+  ios: {[key: string]: string};
+  android: {[key: string]: string};
+};
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const CODEPUSH_DEPLOYMENT_KEYS: DeploymentKeys = {
+  android: {
+    production: '43SgCqH5JP2V9tOPfTri8iZOsukN4ksvOXqog',
+    staging: 'Dhps79edindqy6F6rfVDJgrg9CHY4ksvOXqog',
+  },
+  ios: {
+    production: 'lOVrQI4itIp1z0QMGMJVDvPIvRVq4ksvOXqog',
+    staging: 'krxkHqnXRfKg9XO2K81fnVyHDOpQ4ksvOXqog',
+  },
+};
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+let codePushOptions = {checkFrequency: CodePush.CheckFrequency.ON_APP_START};
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [status, setStatus] = React.useState('');
+  const [process, setProcess] = React.useState('');
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleChangeEnvironment = (env: string) => {
+    const {ios, android} = CODEPUSH_DEPLOYMENT_KEYS;
+    const selectedKeys = Platform.OS === 'ios' ? ios : android;
+    const deploymentKey = selectedKeys[env] || selectedKeys.production;
+    CodePush.sync(
+      {
+        deploymentKey,
+        updateDialog: true,
+        installMode: CodePush.InstallMode.IMMEDIATE,
+        mandatoryInstallMode: CodePush.InstallMode.IMMEDIATE,
+      },
+      status => {
+        switch (status) {
+          case CodePush.SyncStatus.DOWNLOADING_PACKAGE:
+            setStatus('Downloading package.');
+            break;
+          case CodePush.SyncStatus.INSTALLING_UPDATE:
+            setStatus('Installing update.');
+            break;
+          case CodePush.SyncStatus.UPDATE_INSTALLED:
+            CodePush.notifyAppReady();
+            setStatus('Update installed. Restart not required.');
+            break;
+          case CodePush.SyncStatus.UP_TO_DATE:
+            setStatus('The app is up to date.');
+            break;
+          case CodePush.SyncStatus.UPDATE_IGNORED:
+            setStatus('Update cancelled by user.');
+            break;
+          case CodePush.SyncStatus.UNKNOWN_ERROR:
+            setStatus('An unknown error occurred.');
+            break;
+        }
+      },
+      progress => {
+        setProcess(
+          `Received ${progress.receivedBytes} of ${progress.totalBytes} bytes.`,
+        );
+      },
+    ).catch(e => setStatus(JSON.stringify(e)));
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={{flex: 1, padding: 20}}>
+      <TouchableOpacity
+        style={{padding: 10, backgroundColor: 'red'}}
+        onPress={() => handleChangeEnvironment('production')}>
+        <Text>Check for updates for production</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{padding: 10, backgroundColor: 'blue', marginVertical: 20}}
+        onPress={() => handleChangeEnvironment('staging')}>
+        <Text>Check for updates for staging</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{padding: 10, backgroundColor: 'green'}}
+        onPress={() => handleChangeEnvironment('dev')}>
+        <Text>Check for updates for dev</Text>
+      </TouchableOpacity>
+      <Text>Stage 2</Text>
+      <Text>{status}</Text>
+      <Text>{process}</Text>
     </SafeAreaView>
   );
 }
@@ -115,4 +122,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default CodePush(codePushOptions)(App);
