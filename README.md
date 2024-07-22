@@ -452,14 +452,26 @@ code-push release-react Z-iOS ios --t 13.4 --dev false --d Production --des "Pro
 - --d: description
 - --m: mandatory
 
-### patch to all users
+### Patch to all users
 
 ```bash
 code-push patch Z-Android Production -r 100
 ```
 
-### view log deployment
+### View log deployment
 
 ```bash
 code-push deployment list Z-Android -k
 ```
+
+### Resource
+
+https://github.com/shm-open/code-push-server
+
+https://github.com/shm-open/code-push-cli
+
+https://aexomir1.medium.com/configuring-react-native-code-push-using-custom-server-e40e87697a26
+
+https://aexomir1.medium.com/handling-multi-deployment-environments-and-ab-testing-on-react-native-1d4e8e4b1e8e
+
+https://github.com/microsoft/react-native-code-push
