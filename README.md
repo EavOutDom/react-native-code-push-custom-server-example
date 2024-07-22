@@ -464,15 +464,3 @@ code-push patch Z-Android Production -r 100
 ```bash
 code-push deployment list Z-Android -k
 ```
-
-### Resource
-
-https://github.com/shm-open/code-push-server
-
-https://github.com/shm-open/code-push-cli
-
-https://aexomir1.medium.com/configuring-react-native-code-push-using-custom-server-e40e87697a26
-
-https://aexomir1.medium.com/handling-multi-deployment-environments-and-ab-testing-on-react-native-1d4e8e4b1e8e
-
-https://github.com/Microsoft/react-native-code-push
