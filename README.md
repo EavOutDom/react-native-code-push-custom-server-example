@@ -223,7 +223,7 @@ Your `sourceURLForBridge` method should look like this:
 }
 ```
 
-### configuring on Android
+### Configuring on Android
 
 Complete setup guide is provided [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/setup-android.md)
 
