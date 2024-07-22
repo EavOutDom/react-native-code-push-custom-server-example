@@ -449,9 +449,9 @@ iOS:
 code-push release-react Z-iOS ios --t 13.4 --dev false --d Production --des "Production" --m true
 ```
 
-> --t = target
-> --d = description
-> --m = mandatory
+- --t: target
+- --d: description
+- --m: mandatory
 
 ### patch to all users
 
