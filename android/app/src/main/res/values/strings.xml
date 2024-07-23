@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">AwesomeProject</string>
+    <string moduleConfig="true" name="CodePushServerUrl">http://localhost:8888/</string>
+</resources>
