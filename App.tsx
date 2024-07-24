@@ -91,35 +91,11 @@ function App(): React.JSX.Element {
         onPress={() => handleChangeEnvironment('staging')}>
         <Text>Check for updates for staging</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={{padding: 10, backgroundColor: 'green'}}
-        onPress={() => handleChangeEnvironment('dev')}>
-        <Text>Check for updates for dev</Text>
-      </TouchableOpacity>
-      <Text>Stage 2</Text>
+      <Text>Staging 1.0.3</Text>
       <Text>{status}</Text>
       <Text>{process}</Text>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default CodePush(codePushOptions)(App);

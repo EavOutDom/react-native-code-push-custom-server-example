@@ -103,17 +103,18 @@ android {
 
         releaseStaging {
             ...
-            resValue "string", "CodePushDeploymentKey", '"daTRuP9yJhOaOnQfWvmQN9ey90AK4ksvOXqog"' //staging key
-
-            // Note: It is a good idea to provide matchingFallbacks for the new buildType you create to prevent build issues
             // Add the following line if not already there
+             // Note: It is a good idea to provide matchingFallbacks for the new buildType you create to prevent build issues
             matchingFallbacks = ['release']
+            signingConfig signingConfigs.release
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            resValue "string", "CodePushDeploymentKey", '"daTRuP9yJhOaOnQfWvmQN9ey90AK4ksvOXqog"' //staging key
             ...
         }
 
         release {
             ...
-
             resValue "string", "CodePushDeploymentKey", '"o0udof2qeg1ki4kLvhNCuRU7N83z4ksvOXqog"' //production key
             signingConfig signingConfigs.release
             ...
@@ -397,28 +398,7 @@ export default CodePush(codePushOptions)(App);
 
 ## Step 5 - Testing and Release
 
-> assume this already complete setup for build app
-
-For build on android device run:
-
-```bash
-cd android && ./gradlew clean
-
-./gradlew assembleRease
-
-
-adb install app/build/outputs/apk/release/app-release.apk
-
-cd ..
-```
-
-For build on ios device run:
-
-```bash
-npx react-native run-ios --mode Release
-```
-
-### bundling android and ios
+### Bundling android and ios
 
 In order to create the code-push update of the app, we bundle our application using the following command: [p.s: first, create a folder named `code-push` to store bundle files and assets]
 
@@ -434,12 +414,60 @@ iOS:
 npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ./code-push/main.jsbundle --assets-dest ./code-push
 ```
 
+![step-5](./src/assets/step-5.png)
+
+#### Build
+
+> assume this already complete setup for build app. You have build 2 app one is for staging and another one is for release.
+
+For build on android device run:
+
+```bash
+cd android && ./gradlew clean
+
+//staging
+./gradlew assembleReleaseStaging
+adb install app/build/outputs/apk/releaseStaging/app-releaseStaging.apk
+
+// release
+./gradlew assembleRelease
+adb install app/build/outputs/apk/release/app-release.apk
+
+cd ..
+```
+
+For build on ios device run:
+
+```bash
+npx react-native run-ios --mode Release
+```
+
 ### Releasing Bundle to the Deployment Server
+
+If you want to testing on stage first before pushing to the production, Make sure you're already [build releaseStaging and release](#build) separately. But if you don't want to test, just [deploy to production](#deploy-to-production) without [promoting](#rollout-promote-from-staging-to-production-to-specific-percentage-of-users) and [patching](#patch-to-all-users) to end users.
+
+#### Deploy to staging
 
 Android:
 
 ```bash
-code-push release-react Z-Android android --t 1.0.0 --dev false --d Production --des "Production" --m true
+code-push release-react Z-Android android --t 1.0.1 --dev false --d Staging --des "Staging" --m true
+```
+
+iOS:
+
+```bash
+code-push release-react Z-iOS ios --t 13.4 --dev false --d Staging --des "Staging" --m true
+```
+
+After testing and work as expected, you need to [promoting](#rollout-promote-from-staging-to-production-to-specific-percentage-of-users) and [patching](#patch-to-all-users) to end users or just [deploy to production](#deploy-to-production)
+
+### Deploy to production.
+
+Android:
+
+```bash
+code-push release-react Z-Android android --t 1.0.1 --dev false --d Production --des "Production" --m true
 ```
 
 iOS:
@@ -448,14 +476,22 @@ iOS:
 code-push release-react Z-iOS ios --t 13.4 --dev false --d Production --des "Production" --m true
 ```
 
-- --t: target
-- --d: description
+- --t: targetBinaryVersion
+- --des: description
 - --m: mandatory
+
+### Rollout (Promote from staging to production) to specific percentage of users
+
+```bash
+code-push promote Z-Android Staging Production -r 100 --t 1.0.1 --des "Production 1.0.1" --m true
+```
+
+- -r: provides the rollout functionality and selects the percentage of users
 
 ### Patch to all users
 
 ```bash
-code-push patch Z-Android Production -r 100
+code-push patch Z-Android Production -r 100 --t 1.0.1 --des "Production 1.0.1" --m true
 ```
 
 ### View log deployment
