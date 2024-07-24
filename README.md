@@ -418,7 +418,7 @@ npx react-native bundle --platform ios --dev false --entry-file index.js --bundl
 
 #### Build
 
-> assume this already complete setup for build app. You have build 2 app one is for staging and another one is for release.
+> assume this already complete setup for build app. You have to build 2 app one is for staging and another one is for production.
 
 For build on android device run:
 
