@@ -466,7 +466,7 @@ npx react-native run-ios --mode Release
 
 If you want to testing on stage first before pushing to the production, Make sure you're already [build releaseStaging and release](#build) separately. But if you don't want to test, just [deploy to production](#deploy-to-production) without [promoting](#rollout-promote-from-staging-to-production-to-specific-percentage-of-users) and [patching](#patch-to-all-users) to end users.
 
-#### Deploy to staging
+### Deploy to staging
 
 Android:
 
@@ -518,6 +518,20 @@ code-push patch Z-Android Production -r 100 --t 1.0.1 --des "Production 1.0.1" -
 
 ```bash
 code-push deployment list Z-Android -k
+```
+
+- k: key
+
+### View history deployment
+
+```bash
+code-push deployment history Z-Android Production
+```
+
+### Rollback
+
+```bash
+code-push rollback Z-Android Production --targetRelease v15
 ```
 
 ### Resource

@@ -91,7 +91,7 @@ function App(): React.JSX.Element {
         onPress={() => handleChangeEnvironment('staging')}>
         <Text>Check for updates for staging</Text>
       </TouchableOpacity>
-      <Text>Staging 1.0.3</Text>
+      <Text>Production 1.0.6</Text>
       <Text>{status}</Text>
       <Text>{process}</Text>
     </SafeAreaView>
