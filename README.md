@@ -176,7 +176,14 @@ Name this new setting something like `Multi_Deployment_Config`. Go to the settin
 
 > Retrieve these keys by running `code-push deployment ls -a Z-iOS -k` from your terminal.
 
-#### 4. Allow `HTTP` in the `Info.plist` file
+### 5. Update the `Info.plist` file
+
+- Value `$(CODEPUSH_KEY)` entry to `CodePushDeploymentKey`
+- Value `http://localhost:3000` entry to `CodePushServerUrl`
+
+![step-2.ios.5](./src/assets/step-2.ios.5.png)
+
+- Allow `HTTP` for request
 
 ```bash
 <key>NSAppTransportSecurity</key>
@@ -187,12 +194,6 @@ Name this new setting something like `Multi_Deployment_Config`. Go to the settin
   <true/>
 </dict>
 ```
-
-### 5. Update the `Info.plist` file
-
-Add value `CodePushDeploymentKey` entry to `$(CODEPUSH_KEY)` and value `CodePushServerUrl` entry to `http://localhost:3000`
-
-![step-2.ios.5](./src/assets/step-2.ios.5.png)
 
 ## Step 3 - Installing react-native-code-push
 
