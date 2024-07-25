@@ -483,7 +483,7 @@ code-push release-react Z-Android android --t 1.0.1 --dev false --d Staging --de
 iOS:
 
 ```bash
-code-push release-react Z-iOS ios --t 13.4 --dev false --d Staging --des "Staging" --m true
+code-push release-react Z-iOS ios --t 1.0 --dev false --d Staging --des "Staging" --m true
 ```
 
 After testing and work as expected, you need to [promoting](#rollout-promote-from-staging-to-production-to-specific-percentage-of-users) and [patching](#patch-to-all-users) to end users or just [deploy to production](#deploy-to-production)
@@ -499,7 +499,7 @@ code-push release-react Z-Android android --t 1.0.1 --dev false --d Production -
 iOS:
 
 ```bash
-code-push release-react Z-iOS ios --t 13.4 --dev false --d Production --des "Production" --m true
+code-push release-react Z-iOS ios --t 1.0 --dev false --d Production --des "Production" --m true
 ```
 
 - --t: targetBinaryVersion
