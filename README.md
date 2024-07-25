@@ -178,8 +178,8 @@ Name this new setting something like `Multi_Deployment_Config`. Go to the settin
 
 ### 5. Update the `Info.plist` file
 
-- Value `$(CODEPUSH_KEY)` entry to `CodePushDeploymentKey`
-- Value `http://localhost:3000` entry to `CodePushServerUrl`
+- Add value `$(CODEPUSH_KEY)` to entry `CodePushDeploymentKey`
+- Add value `http://localhost:3000` to entry `CodePushServerUrl`
 
 ![step-2.ios.5](./src/assets/step-2.ios.5.png)
 
