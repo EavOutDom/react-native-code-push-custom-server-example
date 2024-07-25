@@ -137,6 +137,13 @@ Add Code Push Server Url.
 </resources>
 ```
 
+#### 3. Allow `HTTP` in the `AndroidManifest.xml` file
+
+```bash
+<application android:usesCleartextTraffic="true">
+</application>
+```
+
 iOS:
 
 More info [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/multi-deployment-testing-ios.md)
@@ -168,6 +175,18 @@ Name this new setting something like `Multi_Deployment_Config`. Go to the settin
 ![step-2.ios.4](./src/assets/step-2.ios.4.png)
 
 > Retrieve these keys by running `code-push deployment ls -a Z-iOS -k` from your terminal.
+
+#### 4. Allow `HTTP` in the `Info.plist` file
+
+```bash
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <true/>
+  <key>NSAllowsLocalNetworking</key>
+  <true/>
+</dict>
+```
 
 ### 5. Update the `Info.plist` file
 
