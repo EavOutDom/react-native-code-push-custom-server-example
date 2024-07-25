@@ -458,7 +458,13 @@ cd ..
 
 For build on ios device run:
 
+you can build on Xcode or run command line
+
 ```bash
+//staging
+npx react-native run-ios --mode Staging
+
+//release
 npx react-native run-ios --mode Release
 ```
 
