@@ -203,7 +203,7 @@ Before install, please check [support react-native platform here](https://github
 npm install --save react-native-code-push
 ```
 
-### configuring on ios
+### Configuring on ios
 
 Complete setup guide is provided [here](https://github.com/microsoft/react-native-code-push/blob/master/docs/setup-ios.md)
 
@@ -255,7 +255,7 @@ Add these lines at the end of file
 ```
 ...
 include ':app', ':react-native-code-push'
-project(':react-native-code-push').projectDir = new File(rootProject.projectDir, '../node_modules react-native-code-push/android/app')
+project(':react-native-code-push').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-code-push/android/app')
 ...
 ```
 
